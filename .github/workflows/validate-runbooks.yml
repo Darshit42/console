@@ -1,0 +1,60 @@
+name: Validate Runbooks
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Run nightly at 3 AM UTC
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'docs/runbooks/**'
+  pull_request:
+    paths:
+      - 'docs/runbooks/**'
+  workflow_dispatch:
+
+jobs:
+  validate-install-upgrade:
+    name: Validate Install and Upgrade Runbooks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup kind cluster
+        uses: helm/kind-action@v1.10.0
+        with:
+          cluster_name: runbook-test-cluster
+
+      - name: Install Runme CLI
+        run: |
+          wget https://github.com/stateful/runme/releases/download/v3.4.1/runme_linux_x86_64.tar.gz
+          tar -xzf runme_linux_x86_64.tar.gz -C /usr/local/bin
+
+      - name: Run Install Runbook
+        run: |
+          cd "$GITHUB_WORKSPACE/docs/runbooks"
+          
+          # Execute the Runme tasks systematically
+          runme run check-prereqs
+          runme run add-helm-repo
+          runme run create-namespace
+          runme run create-values
+          runme run install-console
+          runme run verify-deployment
+
+      - name: Run Upgrade Runbook
+        run: |
+          cd "$GITHUB_WORKSPACE/docs/runbooks"
+          
+          # Upgrading using the upgrade runbook
+          runme run check-helm-release
+          runme run pre-flight-verification
+          runme run search-versions
+          runme run upgrade-console
+          runme run verify-upgrade
+
+      - name: Run Uninstall (Cleanup)
+        if: always()
+        run: |
+          cd "$GITHUB_WORKSPACE/docs/runbooks"
+          runme run uninstall-console || echo "Uninstall task could not be completed, cluster tearing down anyway."

@@ -43,12 +43,12 @@ export default defineConfig({
   // Reporter configuration
   reporter: process.env.CI
     ? [
-        ['blob', { outputDir: 'blob-report' }],
-        ['html', { outputFolder: 'playwright-report' }],
-        ['json', { outputFile: 'test-results/results.json' }],
-        ['junit', { outputFile: 'test-results/junit.xml' }],
-        ['github'],
-      ]
+      ['blob', { outputDir: 'blob-report' }],
+      ['html', { outputFolder: 'playwright-report' }],
+      ['json', { outputFile: 'test-results/results.json' }],
+      ['junit', { outputFile: 'test-results/junit.xml' }],
+      ['github'],
+    ]
     : [['html', { open: 'never' }], ['./e2e/helpers/ux-reporter.ts']],
 
   // Global timeout per test
@@ -146,16 +146,16 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        // Run `go run .` from the repo root (one level up from web/).
-        command: 'cd .. && go run .',
-        url: 'http://localhost:8080',
-        // Go backend can take a while to build on first run.
-        // 3 minutes covers a cold `go run` compile on modest hardware.
-        timeout: 180_000,
-        reuseExistingServer: !process.env.CI,
-        stdout: 'pipe',
-        stderr: 'pipe',
-      },
+      // Run `go run .` from the repo root (one level up from web/).
+      command: 'cd .. && go run .',
+      url: 'http://localhost:8080',
+      // Go backend can take a while to build on first run.
+      // 3 minutes covers a cold `go run` compile on modest hardware.
+      timeout: 180_000,
+      reuseExistingServer: !process.env.CI,
+      stdout: 'pipe',
+      stderr: 'pipe',
+    },
 
   // Output directory
   outputDir: 'test-results',

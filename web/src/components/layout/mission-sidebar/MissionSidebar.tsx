@@ -732,6 +732,7 @@ export function MissionSidebar() {
               onClick={() => setShowMissionControl(true)}
               className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 flex-shrink-0"
               title={t('layout.missionSidebar.missionControlTitle')}
+              data-testid="mission-control-button"
             >
               <Rocket className="w-4 h-4" />
             </button>

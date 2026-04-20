@@ -1,0 +1,10 @@
+{
+  "signal": "react-commits-navigation",
+  "displayName": "Dashboard navigation React commits",
+  "value": 9007199254740991,
+  "budget": 20,
+  "unit": "commits",
+  "context": {
+    "navigatedTo": "/clusters"
+  }
+}

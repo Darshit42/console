@@ -46,9 +46,12 @@ async function setupTourTest(page: Page, tourCompleted: boolean = true) {
   // parsed and executed scripts, which is too late for webkit/Safari where the
   // auth redirect fires synchronously on script evaluation.
   // page.addInitScript() injects the snippet ahead of any page code (#9096).
+  // kc-demo-mode=true ensures the dashboard renders immediately from the demo
+  // fallback rather than waiting for API data (avoids loading skeleton timeout).
   const completed = tourCompleted
   await page.addInitScript((isCompleted: boolean) => {
     localStorage.setItem('token', 'test-token')
+    localStorage.setItem('kc-demo-mode', 'true')
     localStorage.setItem('demo-user-onboarded', 'true')
     if (isCompleted) {
       localStorage.setItem('kubestellar-console-tour-completed', 'true')
@@ -229,8 +232,12 @@ test.describe('Tour/Onboarding', () => {
     test('adapts to mobile viewport', async ({ page }) => {
       await setupTourTest(page, true)
 
-      await page.goto('/')
+      // Set viewport BEFORE goto so the page lays out in mobile mode from
+      // the first render (avoids a desktop→mobile transition in webkit that
+      // temporarily sets visibility:hidden on the main content during the
+      // 300 ms CSS transition).
       await page.setViewportSize({ width: 375, height: 667 })
+      await page.goto('/')
 
       // Webkit may need additional time after viewport resize to re-layout
       // (#nightly-playwright).

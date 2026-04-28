@@ -1,14 +1,10 @@
 import { test, expect, Page } from '@playwright/test'
+import { mockApiFallback } from './helpers/setup'
 
 async function setupPage(page: Page) {
-  // Catch-all API mock prevents unmocked requests hanging in webkit/firefox
-  await page.route('**/api/**', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({}),
-    })
-  )
+  // Catch-all API mock (includes targeted /api/active-users response to
+  // prevent NaN re-render loop in useActiveUsers — see #nightly-playwright).
+  await mockApiFallback(page)
 
   await page.route('**/api/me', (route) =>
     route.fulfill({

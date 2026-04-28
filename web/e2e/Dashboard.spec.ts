@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { setupDashboardTest } from './helpers/setup'
+import { setupDashboardTest, mockApiFallback } from './helpers/setup'
 
 test.describe('Dashboard Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -330,14 +330,9 @@ test.describe('Dashboard Data Accuracy (#6459)', () => {
   const EXPECTED_CLUSTER_COUNT = 3
 
   test.beforeEach(async ({ page }) => {
-    // Catch-all mock (prevents unmocked API hangs in webkit/firefox)
-    await page.route('**/api/**', (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({}),
-      })
-    )
+    // Catch-all mock (includes targeted /api/active-users response to prevent
+    // NaN re-render loop in useActiveUsers — see #nightly-playwright).
+    await mockApiFallback(page)
 
     // Mock /api/dashboards so the dashboard component doesn't wait for a
     // backend response before falling back to demo cards.
@@ -372,7 +367,6 @@ test.describe('Dashboard Data Accuracy (#6459)', () => {
       { length: EXPECTED_CLUSTER_COUNT },
       (_, i) => ({
         name: `accuracy-cluster-${i + 1}`,
-        context: `ctx-${i + 1}`,
         healthy: true,
         reachable: true,
         nodeCount: 2,

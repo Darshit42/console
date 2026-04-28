@@ -1,3 +1,31 @@
+## Pass 41 — 2026-04-28 UTC (nightlyPlaywright fix validation)
+
+### nightlyPlaywright=RED — Root Cause Analysis & Fix
+
+**Trigger**: All 45 nightly Playwright CI runs RED across webkit, firefox, mobile-chrome, mobile-safari.
+
+**Root causes identified and fixed** (2 commits, final SHA `8bd633383`):
+
+| # | Root Cause | File(s) Changed |
+|---|-----------|----------------|
+| A | `/api/active-users` returned `{}` → NaN re-render loop → DOM detachment | `setup.ts`, `useActiveUsers.ts` |
+| B | WebSocket storm in demo mode (wrong isDemoModeForced check) | `useActiveUsers.ts` |
+| C | Tour storage key mismatch (`kc-tour-complete` vs `kubestellar-console-tour-completed`) | `setup.ts` |
+| D | `context` field in mock data hid cluster display names | `setup.ts`, `Clusters.spec.ts`, `Dashboard.spec.ts` |
+| E | Missing `data-testid` on cluster rows | `ClusterGrid.tsx` |
+| F | Mobile viewport set AFTER goto → CSS transition race | `Tour.spec.ts`, `Clusters.spec.ts` |
+| G | 3 spec files bypassed active-users mock (inline catch-all) | `navbar-responsive.spec.ts`, `Dashboard.spec.ts`, `smoke.spec.ts` |
+
+**Validation runs**:
+- Run `25057661274` on SHA `75d924601` (intermediate) — still failed on Dashboard.spec.ts:418,508 (expected, second fix not yet in that commit)
+- Run `25058476239` on SHA `8bd633383` (both fixes) — **in progress**, results pending
+
+### PR Status
+- PRs #10707, #10706: Open, CI checks pending
+- ADOPTER PRs: On hold (no approver action needed from reviewer)
+
+---
+
 ## Pass 40 — 2026-04-28 01:40 EDT
 
 ### Monitoring Summary
